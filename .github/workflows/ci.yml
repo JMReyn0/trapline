@@ -1,0 +1,64 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  # Builds and unit-tests using ONLY the committed bpf2go artifacts
+  # (internal/sensor/trapline_x86_bpfel.{go,o}) -- no clang, no bpftool, no
+  # BTF access. Proves that cloning this repo and running `go build` just
+  # works, without needing an eBPF toolchain at all.
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.25"
+      - run: go build ./...
+      - run: go vet ./...
+      - run: go test -count=1 ./...
+
+  # The real proof: installs a full eBPF build toolchain, regenerates
+  # vmlinux.h and the BPF object FRESH from this runner's own kernel (almost
+  # certainly a different kernel than trapline was developed against), then
+  # loads the resulting program into that kernel and fires real subprocesses
+  # at it. This is what actually demonstrates CO-RE portability, not just a
+  # text diff of a kernel-specific header.
+  e2e:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.25"
+
+      - name: Install eBPF build toolchain
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq clang llvm libelf-dev libbpf-dev linux-tools-common linux-tools-generic
+
+      - name: Make bpftool callable
+        # apt's /usr/sbin/bpftool is a version-checking wrapper that refuses
+        # to run unless it finds a bpftool built for the EXACT running
+        # kernel package -- which GitHub's runner kernel usually isn't a
+        # match for. The real binary underneath works fine regardless (it
+        # only needs the bpf() syscall and /sys/kernel/btf/vmlinux, both
+        # kernel-version-independent), so symlink past the wrapper.
+        run: |
+          real=$(ls /usr/lib/linux-tools/*/bpftool | head -1)
+          sudo ln -sf "$real" /usr/local/bin/bpftool
+          bpftool version
+
+      - name: Regenerate vmlinux.h and BPF bindings from this runner's kernel
+        run: |
+          bpftool btf dump file /sys/kernel/btf/vmlinux format c > bpf/vmlinux.h
+          go generate ./...
+
+      - run: go build ./...
+
+      - name: Run e2e tests (root required to load BPF programs)
+        run: sudo -E env "PATH=$PATH" go test -tags e2e -v -count=1 ./test/e2e/...

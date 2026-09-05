@@ -1,0 +1,63 @@
+# trapline's default detection rules. Detection is data, not code: this file
+# is what decides what's suspicious, not the kernel probes or the Go binary.
+# Each rule's `match` clauses are ANDed together; within one list-valued
+# clause, any single value matching is enough. See test/e2e for a scenario
+# that exercises each of these against a real, running sensor.
+
+rules:
+  - id: shell-from-network-service
+    severity: high
+    description: A shell was spawned from a network-facing service process
+    match:
+      event: exec
+      comm: [sh, bash, dash, ash]
+      parent_comm: [nginx, apache2, httpd, sshd, mysqld, php-fpm, redis-server]
+
+  - id: exec-from-temp-dir
+    severity: high
+    description: A process executed from a world-writable temp directory
+    match:
+      event: exec
+      filename_prefix: ["/tmp/", "/dev/shm/", "/var/tmp/"]
+
+  - id: reverse-shell-argv
+    severity: critical
+    description: Command line matches a classic reverse-shell one-liner pattern
+    match:
+      event: exec
+      argv_contains:
+        - "/dev/tcp/"
+        - "-e /bin/sh"
+        - "-e/bin/sh"
+        - "-e /bin/bash"
+        - "nc -e"
+        - "bash -i"
+
+  - id: unexpected-root-exec
+    severity: medium
+    description: A process ran as root from a parent outside the normal privileged set
+    match:
+      event: exec
+      uid: [0]
+      parent_comm_not: [sudo, su, systemd, sshd, cron, containerd-shim, dockerd, login, runc]
+
+  - id: suspicious-outbound-port
+    severity: medium
+    description: Outbound connection to a commonly-abused port
+    match:
+      event: connect
+      dest_port: [4444, 1337, 6667, 31337, 4443]
+
+  - id: sensitive-file-write
+    severity: high
+    description: Write access to a sensitive system file
+    match:
+      event: open
+      filename: ["/etc/passwd", "/etc/shadow", "/etc/sudoers", "/etc/gshadow"]
+
+  - id: ssh-authorized-keys-write
+    severity: high
+    description: Write access to an SSH authorized_keys file
+    match:
+      event: open
+      filename_suffix: [".ssh/authorized_keys"]
