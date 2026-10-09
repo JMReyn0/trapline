@@ -11,10 +11,10 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/justinmreynolds93-afk/trapline/internal/alert"
-	"github.com/justinmreynolds93-afk/trapline/internal/event"
-	"github.com/justinmreynolds93-afk/trapline/internal/rules"
-	"github.com/justinmreynolds93-afk/trapline/internal/sensor"
+	"github.com/JMReyn0/trapline/internal/alert"
+	"github.com/JMReyn0/trapline/internal/event"
+	"github.com/JMReyn0/trapline/internal/rules"
+	"github.com/JMReyn0/trapline/internal/sensor"
 )
 
 func main() {

@@ -6,9 +6,9 @@ import (
 	"io"
 	"time"
 
-	"github.com/justinmreynolds93-afk/trapline/internal/enrich"
-	"github.com/justinmreynolds93-afk/trapline/internal/event"
-	"github.com/justinmreynolds93-afk/trapline/internal/rules"
+	"github.com/JMReyn0/trapline/internal/enrich"
+	"github.com/JMReyn0/trapline/internal/event"
+	"github.com/JMReyn0/trapline/internal/rules"
 )
 
 type Alert struct {

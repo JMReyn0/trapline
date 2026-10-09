@@ -7,7 +7,7 @@ anything. Written to prove the detections actually fire, not just describe
 them: [`test/e2e`](test/e2e/e2e_test.go) loads the real BPF program into a
 real kernel and throws real subprocesses at it.
 
-![ci](https://github.com/justinmreynolds93-afk/trapline/actions/workflows/ci.yml/badge.svg)
+![ci](https://github.com/JMReyn0/trapline/actions/workflows/ci.yml/badge.svg)
 ![license](https://img.shields.io/badge/license-MIT-blue)
 ![go](https://img.shields.io/badge/go-%E2%89%A51.25-00ADD8)
 

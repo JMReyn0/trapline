@@ -15,13 +15,13 @@ import (
 	"github.com/cilium/ebpf/ringbuf"
 	"github.com/cilium/ebpf/rlimit"
 
-	"github.com/justinmreynolds93-afk/trapline/internal/event"
+	"github.com/JMReyn0/trapline/internal/event"
 )
 
 type Sensor struct {
-	objs    TraplineObjects
-	links   []link.Link
-	reader  *ringbuf.Reader
+	objs   TraplineObjects
+	links  []link.Link
+	reader *ringbuf.Reader
 }
 
 // Open loads the BPF program into the kernel and attaches every probe.

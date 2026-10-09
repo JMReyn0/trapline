@@ -1,4 +1,4 @@
-module github.com/justinmreynolds93-afk/trapline
+module github.com/JMReyn0/trapline
 
 go 1.25.0
 

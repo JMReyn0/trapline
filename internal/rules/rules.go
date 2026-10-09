@@ -10,7 +10,7 @@ import (
 
 	"gopkg.in/yaml.v3"
 
-	"github.com/justinmreynolds93-afk/trapline/internal/event"
+	"github.com/JMReyn0/trapline/internal/event"
 )
 
 type Severity string
