@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/justinmreynolds93-afk/trapline/internal/event"
+	"github.com/JMReyn0/trapline/internal/event"
 )
 
 func TestLoadValidatesEventType(t *testing.T) {
